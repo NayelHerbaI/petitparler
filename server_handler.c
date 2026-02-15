@@ -6,15 +6,15 @@
 /*   By: jihi <jihi@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/15 02:39:12 by jihi              #+#    #+#             */
-/*   Updated: 2026/02/15 02:39:14 by jihi             ###   ########.fr       */
+/*   Updated: 2026/02/15 19:45:29 by jihi             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-static void	reset_state(pid_t *cur, int *bit, unsigned char *c, pid_t pid)
+static void	reset_state(pid_t *curr_pid, int *bit, unsigned char *c, pid_t pid)
 {
-	*cur = pid;
+	*curr_pid = pid;
 	*bit = 0;
 	*c = 0;
 }
@@ -37,21 +37,21 @@ static void	handle_bit(int sig, int *bit, unsigned char *c)
 
 static void	handler(int sig, siginfo_t *info, void *context)
 {
-	static pid_t			cur = 0;
+	static pid_t			curr_pid = 0;
 	static int				bit = 0;
 	static unsigned char	c = 0;
 
 	(void)context;
 	if (!info)
 		return ;
-	if (cur == 0 || cur != info->si_pid)
-		reset_state(&cur, &bit, &c, info->si_pid);
+	if (curr_pid == 0 || curr_pid != info->si_pid)
+		reset_state(&curr_pid, &bit, &c, info->si_pid);
 	handle_bit(sig, &bit, &c);
 	if (bit == 8)
 	{
 		print_char(c);
 		if (c == 0)
-			cur = 0;
+			curr_pid = 0;
 		bit = 0;
 		c = 0;
 	}
